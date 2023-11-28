@@ -65,3 +65,12 @@ def get_tasks_for_user(task_id: int, db: Session = Depends(get_db)) -> None:
         raise HTTPException(404, "Task not found")
     task_handler.delete_task(db, task_id)
     return
+
+
+@app.put("/tasks/{task_id}", response_model=TaskResponse)
+def update_task(task_id: int, updates: TaskBase, db: Session = Depends(get_db)) -> TaskResponse:
+    task = task_handler.get_task_by_id(db, task_id)
+    if not task:
+        raise HTTPException(404, "Task not found")
+    task = task_handler.update_task(db, task, updates)
+    return task

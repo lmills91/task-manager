@@ -1,7 +1,20 @@
-from typing import Union, List
-from xmlrpc.client import DateTime
+from datetime import datetime
+from typing import Optional, Union, List
 
 from pydantic import BaseModel, validator
+
+
+class TaskPatch(BaseModel):
+    title: Optional[str] = None
+    description: Optional[str] = None
+    status: Optional[str] = None
+    owner_id: Optional[int] = None
+    @validator("status")
+    def check_status_value(cls, status):
+        allowed_values = ["Doing", "Pending", "Blocked", "Done"]
+        if status not in allowed_values:
+            raise ValueError(f"Status must be one of: {allowed_values}")
+        return status
 
 
 class TaskBase(BaseModel):
@@ -39,14 +52,14 @@ class UserResponse(UserBase):
 
 
 class HistoryBase(BaseModel):
-    date_created: DateTime
+    date_created: datetime
     action: str
     owner_id: int
     task_id: int
 
-    @validator(action)
+    @validator("action")
     def check_action_value(cls, action):
-        allowed_values = ["Deleted", "Change Status", "Restored"]
+        allowed_values = ["Deleted", "Status Update", "Restored", "Change Details"]
         if action not in allowed_values:
             raise ValueError(f"Action must be one of: {allowed_values}")
         return action

@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 from models.task import Task
 from models.history import History
 
-from pydantic_schemas.schemas import TaskBase, TaskResponse
+from pydantic_schemas.schemas import TaskBase, TaskPatch, TaskResponse
 
 
 def create_task(db: Session, task: TaskBase) -> TaskResponse:
@@ -28,11 +28,25 @@ def delete_task(db: Session, task_id: int) -> None:
         raise HTTPException(404, "Task not found")
     task.deleted = True
     db.commit()
-    new_history = History(owner_id=task.owner_id, task_id=task_id)
+    new_history = History(owner_id=task.owner_id, task_id=task_id, action="Deleted")
     db.add(new_history)
     db.commit()
+    db.refresh(task)
     db.refresh(new_history)
     return
+
+
+def update_task(db: Session, task: TaskResponse, updates: TaskBase)-> TaskResponse:
+    # allow user to update any field except for deleted. can be restored from another endpoint.
+    task.title = updates.title
+    task.owner_id = updates.owner_id
+    task.description = updates.description
+    task.status = updates.status
+
+    breakpoint()
+    db.commit()
+    db.refresh(task)
+    return task
 
 
 def get_task_by_id(db: Session, task_id: int) -> Union[TaskResponse, None]:
