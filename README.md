@@ -12,13 +12,13 @@ Docs are provided by swagger http://127.0.0.1:8000/docs
 Getting Started:
 
 pull this repo and cd in to the folder.
+make sure you're in a virtual env with python 3.9+ in use
 
-`pip install fastapi`
-`pip install "uvicorn:[standard]"`
-`pip install sqlalchemy`
-`pip install git+https://github.com/psf/black`
+run `curl -sSL https://install.python-poetry.org | python3 -` to install poetry
 
-`alembic init alembic`
+run `poetry install`
+
+`alembic upgrade head` whenever a new column is added.
 
 To run server:
 `uvicorn main:app --reload`

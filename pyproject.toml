@@ -1,0 +1,16 @@
+[tool.poetry]
+name = "task-management"
+version = "1.0.0"
+description = ""
+authors = ["Laura Mills <lmills91@hotmail.co.uk>"]
+
+[tool.poetry.dependencies]
+python = "^3.9"
+fastapi = "^0.104.1"
+uvicorn = {extras = ["standard"], version = "^0.24.0.post1"}
+sqlalchemy = "^2.0.23"
+alembic = "^1.12.1"
+black = {git = "https://github.com/psf/black"}
+
+
+
