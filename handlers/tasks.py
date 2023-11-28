@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 from models.task import Task
 from models.history import History
 
-from pydantic_schemas.schemas import TaskBase, TaskPatch, TaskResponse
+from pydantic_schemas.schemas import TaskBase, TaskResponse
 
 
 def create_task(db: Session, task: TaskBase) -> TaskResponse:
