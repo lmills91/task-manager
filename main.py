@@ -56,3 +56,12 @@ def create_task(task: TaskBase, db: Session = Depends(get_db)) -> TaskResponse:
 def get_tasks_for_user(user_id: int, db: Session = Depends(get_db)) -> TaskResponse:
     tasks = task_handler.get_tasks_for_user(db, user_id)
     return tasks
+
+
+@app.delete("/tasks/{task_id}")
+def get_tasks_for_user(task_id: int, db: Session = Depends(get_db)) -> None:
+    task = task_handler.get_task_by_id(db, task_id)
+    if not task:
+        raise HTTPException(404, "Task not found")
+    task_handler.delete_task(db, task_id)
+    return

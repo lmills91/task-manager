@@ -1,4 +1,5 @@
 from typing import Union, List
+from xmlrpc.client import DateTime
 
 from pydantic import BaseModel, validator
 
@@ -17,12 +18,12 @@ class TaskBase(BaseModel):
             raise ValueError(f"Status must be one of: {allowed_values}")
         return status
 
-    class Config:
-        orm_mode = True
-
 
 class TaskResponse(TaskBase):
     id: int
+
+    class Config:
+        orm_mode = True
 
 
 class UserBase(BaseModel):
@@ -32,6 +33,30 @@ class UserBase(BaseModel):
 class UserResponse(UserBase):
     id: int
     Tasks: List[TaskBase] = []
+
+    class Config:
+        orm_mode = True
+
+
+class HistoryBase(BaseModel):
+    date_created: DateTime
+    action: str
+    owner_id: int
+    task_id: int
+
+    @validator(action)
+    def check_action_value(cls, action):
+        allowed_values = ["Deleted", "Change Status", "Restored"]
+        if action not in allowed_values:
+            raise ValueError(f"Action must be one of: {allowed_values}")
+        return action
+
+    class Config:
+        orm_mode = True
+
+
+class HistoryResponse(HistoryBase):
+    id: int
 
     class Config:
         orm_mode = True

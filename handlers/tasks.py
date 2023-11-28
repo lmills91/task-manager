@@ -1,6 +1,8 @@
-from typing import List
+from http.client import HTTPException
+from typing import List, Union
 from sqlalchemy.orm import Session
 from models.task import Task
+from models.history import History
 
 from pydantic_schemas.schemas import TaskBase, TaskResponse
 
@@ -17,5 +19,31 @@ def create_task(db: Session, task: TaskBase) -> TaskResponse:
     return new_task
 
 
+def delete_task(db: Session, task_id: int) -> None:
+    # task should be moved to history and marked as deleted
+    task = (
+        db.query(Task).filter(Task.deleted == False).filter(Task.id == task_id).first()
+    )
+    if not task:
+        raise HTTPException(404, "Task not found")
+    task.deleted = True
+    db.commit()
+    new_history = History(owner_id=task.owner_id, task_id=task_id)
+    db.add(new_history)
+    db.commit()
+    db.refresh(new_history)
+    return
+
+
+def get_task_by_id(db: Session, task_id: int) -> Union[TaskResponse, None]:
+    return db.query(Task).get(task_id)
+
+
 def get_tasks_for_user(db: Session, user_id: int) -> List[TaskResponse]:
-    return db.query(Task).filter(Task.owner_id == user_id).all()
+    # should get all non-deleted tasks for user
+    return (
+        db.query(Task)
+        .filter(Task.owner_id == user_id)
+        .filter(Task.deleted == False)
+        .all()
+    )
