@@ -16,6 +16,7 @@ pull this repo and cd in to the folder.
 `pip install fastapi`
 `pip install "uvicorn:[standard]"`
 `pip install sqlalchemy`
+`pip install alembic`
 `pip install git+https://github.com/psf/black`
 
 `alembic init alembic`

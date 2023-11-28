@@ -80,7 +80,7 @@ def delete_task(
     if not task:
         raise HTTPException(404, "task not found for current user")
 
-    task_handler.delete_task(db, task, current_user)
+    task_handler.delete_task(db, task)
 
     return
 
