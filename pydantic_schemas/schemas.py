@@ -10,6 +10,7 @@ class TaskBase(BaseModel):
     owner_id: int
     status: str = "Pending"
     deleted: bool = False
+    due_date: Optional[datetime] = None
 
     @validator("status")
     def check_status_value(cls, status):

@@ -12,6 +12,8 @@ def create_task(db: Session, task: TaskBase) -> TaskResponse:
         title=task.title,
         description=task.description,
         owner_id=task.owner_id,
+        due_date=task.due_date,
+        status=task.status
     )
     db.add(new_task)
     db.commit()
