@@ -27,11 +27,12 @@ class TaskResponse(TaskBase):
         orm_mode = True
 
 
-class UserBase(BaseModel):
+class User(BaseModel):
     email: str
+    username: str
 
 
-class UserResponse(UserBase):
+class UserResponse(User):
     id: int
     Tasks: List[TaskBase] = []
 
