@@ -33,7 +33,7 @@ def delete_task(db: Session, task_id: int, current_user: BaseUser) -> None:
     new_history = History(owner_id=task.owner_id, task_id=task_id, action="Deleted")
     db.add(new_history)
     db.commit()
-    db.refresh(task, new_history)
+    db.refresh(task)
     db.refresh(new_history)
     return
 
