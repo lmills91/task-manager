@@ -79,7 +79,7 @@ def delete_task(
     if not task:
         raise HTTPException(404, "task not found for current user")
 
-    task_handler.delete_task(db, task_id, current_user)
+    task_handler.delete_task(db, task, current_user)
 
     return
 
@@ -95,4 +95,18 @@ def update_task(
     if not task:
         raise HTTPException(404, "task not found for current user")
     task = task_handler.update_task(db, task, updates)
+    return task
+
+
+@app.patch("/tasks/restore/{task_id}", response_model=TaskResponse)
+def restore_task(
+    current_user: Annotated[User, Depends(get_current_user)],
+    task_id: int,
+    db: Session = Depends(get_db),
+) -> TaskResponse:
+    # allows user to undelete a task that is owned by them
+    task = task_handler.get_task_by_id(db, task_id, current_user, True)
+    if not task:
+        raise HTTPException(404, "task not found for current user")
+    task = task_handler.restore_task(db, task)
     return task

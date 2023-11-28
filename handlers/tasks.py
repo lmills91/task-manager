@@ -1,5 +1,5 @@
 from http.client import HTTPException
-from typing import List, Union
+from typing import List, Optional, Union
 from sqlalchemy.orm import Session
 from models.task import Task
 from models.history import History
@@ -23,19 +23,27 @@ def create_task(db: Session, task: TaskBase) -> TaskResponse:
     return new_task
 
 
-def delete_task(db: Session, task_id: int, current_user: BaseUser) -> None:
+def delete_task(db: Session, task: TaskResponse) -> None:
     # task should be moved to history and marked as deleted
     # can only delete a task if user is the owner
-    task = get_task_by_id(db, task_id, current_user)
-    if not task:
-        raise HTTPException(404, "Task not found")
     task.deleted = True
-    new_history = History(owner_id=task.owner_id, task_id=task_id, action="Deleted")
+    new_history = History(owner_id=task.owner_id, task_id=task.id, action="Deleted")
     db.add(new_history)
     db.commit()
     db.refresh(task)
     db.refresh(new_history)
     return
+
+
+def restore_task(db: Session, task: TaskResponse) -> TaskResponse:
+    # undelete a task
+    task.deleted = False
+    new_history = History(owner_id=task.owner_id, task_id=task.id, action="Restored")
+    db.add(new_history)
+    db.commit()
+    db.refresh(task)
+    db.refresh(new_history)
+    return task
 
 
 def update_task(db: Session, task: TaskResponse, updates: TaskBase) -> TaskResponse:
@@ -52,13 +60,13 @@ def update_task(db: Session, task: TaskResponse, updates: TaskBase) -> TaskRespo
 
 
 def get_task_by_id(
-    db: Session, task_id: int, current_user: BaseUser
+    db: Session, task_id: int, current_user: BaseUser, deleted: Optional[bool] = False
 ) -> Union[TaskResponse, None]:
     # get specific non-deleted task for current user
     user_id = user_handler.get_user_by_email(db, current_user.email).id
     return (
         db.query(Task)
-        .filter(Task.deleted == False)
+        .filter(Task.deleted == deleted)
         .filter(Task.id == task_id)
         .filter(Task.owner_id == user_id)
         .first()
