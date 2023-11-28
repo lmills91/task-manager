@@ -19,7 +19,7 @@ pull this repo and cd in to the folder.
 `pip install alembic`
 `pip install git+https://github.com/psf/black`
 
-`alembic init alembic`
+`alembic upgrade head` whenever a new column is added.
 
 To run server:
 `uvicorn main:app --reload`
