@@ -3,6 +3,8 @@ from typing import List, Union
 from sqlalchemy.orm import Session
 from models.task import Task
 from models.history import History
+from pydantic_schemas.schemas import User as BaseUser
+import handlers.users as user_handler
 
 from pydantic_schemas.schemas import TaskBase, TaskResponse
 
@@ -13,7 +15,7 @@ def create_task(db: Session, task: TaskBase) -> TaskResponse:
         description=task.description,
         owner_id=task.owner_id,
         due_date=task.due_date,
-        status=task.status
+        status=task.status,
     )
     db.add(new_task)
     db.commit()
@@ -21,24 +23,22 @@ def create_task(db: Session, task: TaskBase) -> TaskResponse:
     return new_task
 
 
-def delete_task(db: Session, task_id: int) -> None:
+def delete_task(db: Session, task_id: int, current_user: BaseUser) -> None:
     # task should be moved to history and marked as deleted
-    task = (
-        db.query(Task).filter(Task.deleted == False).filter(Task.id == task_id).first()
-    )
+    # can only delete a task if user is the owner
+    task = get_task_by_id(db, task_id, current_user)
     if not task:
         raise HTTPException(404, "Task not found")
     task.deleted = True
-    db.commit()
     new_history = History(owner_id=task.owner_id, task_id=task_id, action="Deleted")
     db.add(new_history)
     db.commit()
-    db.refresh(task)
+    db.refresh(task, new_history)
     db.refresh(new_history)
     return
 
 
-def update_task(db: Session, task: TaskResponse, updates: TaskBase)-> TaskResponse:
+def update_task(db: Session, task: TaskResponse, updates: TaskBase) -> TaskResponse:
     # allow user to update any field except for deleted. Can be restored from another endpoint.
     task.title = updates.title if updates.title else task.title
     task.owner_id = updates.owner_id if updates.owner_id else task.owner_id
@@ -51,12 +51,23 @@ def update_task(db: Session, task: TaskResponse, updates: TaskBase)-> TaskRespon
     return task
 
 
-def get_task_by_id(db: Session, task_id: int) -> Union[TaskResponse, None]:
-    return db.query(Task).get(task_id)
+def get_task_by_id(
+    db: Session, task_id: int, current_user: BaseUser
+) -> Union[TaskResponse, None]:
+    # get specific non-deleted task for current user
+    user_id = user_handler.get_user_by_email(db, current_user.email).id
+    return (
+        db.query(Task)
+        .filter(Task.deleted == False)
+        .filter(Task.id == task_id)
+        .filter(Task.owner_id == user_id)
+        .first()
+    )
 
 
-def get_tasks_for_user(db: Session, user_id: int) -> List[TaskResponse]:
-    # should get all non-deleted tasks for user
+def get_tasks_for_user(db: Session, current_user: BaseUser) -> List[TaskResponse]:
+    # should get all non-deleted tasks for current_user
+    user_id = user_handler.get_user_by_email(db, current_user.email).id
     return (
         db.query(Task)
         .filter(Task.owner_id == user_id)
