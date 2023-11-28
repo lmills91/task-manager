@@ -12,17 +12,17 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = '531c27292f41'
+revision: str = "531c27292f41"
 down_revision: Union[str, None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 
+
 def upgrade() -> None:
     op.add_column(
-        'users',
-        sa.Column('username', sa.String(200), unique=True, index=True)
+        "users", sa.Column("username", sa.String(200), unique=True, index=True)
     )
 
 
 def downgrade() -> None:
-    op.drop_column('users', 'username')
+    op.drop_column("users", "username")

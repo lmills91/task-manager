@@ -32,11 +32,11 @@ def get_db():
 
 
 # would use a better way to do this in real life with oauth usernames and passwords.
-def fake_decode_token(token)-> BaseUser:
+def fake_decode_token(token) -> BaseUser:
     return User(username=token + "fakedecoded", email="laura@test.com")
 
 
-async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)])-> BaseUser:
+async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]) -> BaseUser:
     user = fake_decode_token(token)
     return user
 
