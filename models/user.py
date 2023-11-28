@@ -11,4 +11,3 @@ class User(Base):
     email = Column(String, unique=True, index=True)
 
     tasks = relationship("Task", back_populates="owner")
-

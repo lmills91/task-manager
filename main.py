@@ -28,15 +28,15 @@ def get_db():
 
 
 @app.post("/users", response_model=UserResponse)
-def create_user(user: UserBase, db: Session = Depends(get_db))-> UserResponse:
+def create_user(user: UserBase, db: Session = Depends(get_db)) -> UserResponse:
     db_user = user_handler.get_user_by_email(db, email=user.email)
     if db_user:
         raise HTTPException(status_code=400, detail="Email already registered")
     return user.create_user(db=db, user=user)
-    
+
 
 @app.get("/users/{user_id}", response_model=UserResponse)
-def get_user(user_id: int, db: Session = Depends(get_db))-> UserResponse:
+def get_user(user_id: int, db: Session = Depends(get_db)) -> UserResponse:
     user = user_handler.get_user_by_id(db, user_id)
     if not user:
         raise HTTPException(404, "User not found")
@@ -44,14 +44,15 @@ def get_user(user_id: int, db: Session = Depends(get_db))-> UserResponse:
 
 
 @app.post("/tasks", response_model=TaskResponse)
-def create_task(task: TaskBase, db: Session = Depends(get_db))-> TaskResponse:
+def create_task(task: TaskBase, db: Session = Depends(get_db)) -> TaskResponse:
     # ensures that user exists before creating task
     get_user(task.owner_id, db)
     task = task_handler.create_task(db, task)
 
     return task
 
+
 @app.get("/tasks/{user_id}", response_model=List[TaskResponse])
-def get_tasks_for_user(user_id: int, db: Session = Depends(get_db))-> TaskResponse:
+def get_tasks_for_user(user_id: int, db: Session = Depends(get_db)) -> TaskResponse:
     tasks = task_handler.get_tasks_for_user(db, user_id)
     return tasks

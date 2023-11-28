@@ -10,11 +10,11 @@ class TaskBase(BaseModel):
     status: str = "Pending"
     deleted: bool = False
 
-    @validator('status')
+    @validator("status")
     def check_status_value(cls, status):
-        allowed_values = ['Doing', 'Pending', 'Blocked', 'Done']
+        allowed_values = ["Doing", "Pending", "Blocked", "Done"]
         if status not in allowed_values:
-            raise ValueError(f'Status must be one of: {allowed_values}')
+            raise ValueError(f"Status must be one of: {allowed_values}")
         return status
 
     class Config:

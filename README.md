@@ -5,3 +5,5 @@ Delete tasks are removed from a users list, but they are be moved to a history t
 
 There is support for both python 3.9 and 3.10, all code is formatted using Black formatting.
 Makes use of FastAPI framework
+
+pip install git+https://github.com/psf/black
