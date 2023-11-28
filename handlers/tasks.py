@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 from models.task import Task
 from models.history import History
 
-from pydantic_schemas.schemas import TaskBase, TaskPatch, TaskResponse
+from pydantic_schemas.schemas import TaskBase, TaskResponse
 
 
 def create_task(db: Session, task: TaskBase) -> TaskResponse:
@@ -12,6 +12,8 @@ def create_task(db: Session, task: TaskBase) -> TaskResponse:
         title=task.title,
         description=task.description,
         owner_id=task.owner_id,
+        due_date=task.due_date,
+        status=task.status
     )
     db.add(new_task)
     db.commit()
@@ -42,6 +44,7 @@ def update_task(db: Session, task: TaskResponse, updates: TaskBase)-> TaskRespon
     task.owner_id = updates.owner_id if updates.owner_id else task.owner_id
     task.description = updates.description if updates.description else task.description
     task.status = updates.status if updates.status else task.status
+    task.due_date = updates.due_date if updates.due_date else task.due_date
 
     db.commit()
     db.refresh(task)
