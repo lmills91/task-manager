@@ -1,9 +1,8 @@
-from http.client import HTTPException
 from typing import List, Optional, Union
 from sqlalchemy.orm import Session
 from models.task import Task
 from models.history import History
-from pydantic_schemas.schemas import User as BaseUser
+from pydantic_schemas.schemas import BaseUser
 import handlers.users as user_handler
 
 from pydantic_schemas.schemas import TaskBase, TaskResponse

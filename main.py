@@ -16,6 +16,7 @@ from fastapi.security import OAuth2PasswordBearer
 
 History.metadata.create_all(bind=engine)
 Task.metadata.create_all(bind=engine)
+User.metadata.create_all(bind=engine)
 
 app = FastAPI()
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
@@ -31,17 +32,17 @@ def get_db():
 
 
 # would use a better way to do this in real life with oauth usernames and passwords.
-def fake_decode_token(token):
+def fake_decode_token(token)-> BaseUser:
     return User(username=token + "fakedecoded", email="laura@test.com")
 
 
-async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]):
+async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)])-> BaseUser:
     user = fake_decode_token(token)
     return user
 
 
 @app.post("/users", response_model=UserResponse)
-def create_user(user: User, db: Session = Depends(get_db)) -> UserResponse:
+def create_user(user: BaseUser, db: Session = Depends(get_db)) -> UserResponse:
     db_user = user_handler.get_user_by_email(db, email=user.email)
     if db_user:
         raise HTTPException(status_code=400, detail="Email already registered")
@@ -61,7 +62,7 @@ def create_task(task: TaskBase, db: Session = Depends(get_db)) -> TaskResponse:
 
 @app.get("/tasks", response_model=List[TaskResponse])
 def get_tasks_for_user(
-    current_user: Annotated[User, Depends(get_current_user)],
+    current_user: Annotated[BaseUser, Depends(get_current_user)],
     db: Session = Depends(get_db),
 ) -> TaskResponse:
     # makes use of current user so that nobody can acces any tasks that are not owned by them
@@ -71,7 +72,7 @@ def get_tasks_for_user(
 
 @app.delete("/tasks/{task_id}")
 def delete_task(
-    current_user: Annotated[User, Depends(get_current_user)],
+    current_user: Annotated[BaseUser, Depends(get_current_user)],
     task_id: int,
     db: Session = Depends(get_db),
 ) -> None:
@@ -86,7 +87,7 @@ def delete_task(
 
 @app.put("/tasks/{task_id}", response_model=TaskResponse)
 def update_task(
-    current_user: Annotated[User, Depends(get_current_user)],
+    current_user: Annotated[BaseUser, Depends(get_current_user)],
     task_id: int,
     updates: TaskBase,
     db: Session = Depends(get_db),
@@ -100,7 +101,7 @@ def update_task(
 
 @app.patch("/tasks/restore/{task_id}", response_model=TaskResponse)
 def restore_task(
-    current_user: Annotated[User, Depends(get_current_user)],
+    current_user: Annotated[BaseUser, Depends(get_current_user)],
     task_id: int,
     db: Session = Depends(get_db),
 ) -> TaskResponse:

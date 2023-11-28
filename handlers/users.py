@@ -1,11 +1,11 @@
 from sqlalchemy.orm import Session
 from models.user import User
 
-from pydantic_schemas.schemas import User as BaseUser
+from pydantic_schemas.schemas import BaseUser
 
 
 def create_user(db: Session, user: BaseUser) -> User:
-    db_user = User(email=user.email)
+    db_user = User(email=user.email, username=user.username)
     db.add(db_user)
     db.commit()
     db.refresh(db_user)
