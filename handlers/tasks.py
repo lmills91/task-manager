@@ -37,13 +37,12 @@ def delete_task(db: Session, task_id: int) -> None:
 
 
 def update_task(db: Session, task: TaskResponse, updates: TaskBase)-> TaskResponse:
-    # allow user to update any field except for deleted. can be restored from another endpoint.
-    task.title = updates.title
-    task.owner_id = updates.owner_id
-    task.description = updates.description
-    task.status = updates.status
+    # allow user to update any field except for deleted. Can be restored from another endpoint.
+    task.title = updates.title if updates.title else task.title
+    task.owner_id = updates.owner_id if updates.owner_id else task.owner_id
+    task.description = updates.description if updates.description else task.description
+    task.status = updates.status if updates.status else task.status
 
-    breakpoint()
     db.commit()
     db.refresh(task)
     return task

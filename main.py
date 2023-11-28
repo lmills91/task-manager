@@ -52,7 +52,7 @@ def create_task(task: TaskBase, db: Session = Depends(get_db)) -> TaskResponse:
     return task
 
 
-@app.get("/tasks/{user_id}", response_model=List[TaskResponse])
+@app.get("/tasks", response_model=List[TaskResponse])
 def get_tasks_for_user(user_id: int, db: Session = Depends(get_db)) -> TaskResponse:
     tasks = task_handler.get_tasks_for_user(db, user_id)
     return tasks
