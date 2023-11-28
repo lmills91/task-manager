@@ -44,6 +44,7 @@ def update_task(db: Session, task: TaskResponse, updates: TaskBase)-> TaskRespon
     task.owner_id = updates.owner_id if updates.owner_id else task.owner_id
     task.description = updates.description if updates.description else task.description
     task.status = updates.status if updates.status else task.status
+    task.due_date = updates.due_date if updates.due_date else task.due_date
 
     db.commit()
     db.refresh(task)
