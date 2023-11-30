@@ -18,8 +18,8 @@ def create_user(db: Session, user: BaseUser) -> User:
     return db_user
 
 
-def get_user_by_id(db: Session, user_id: int):
-    return db.query(User).filter(User.id == user_id).first()
+def owner_is_current_user(db: Session, owner_id: int, current_user: User)-> bool:
+    return owner_id == current_user.id
 
 
 # used to validate a new user email is unique

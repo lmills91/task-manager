@@ -7,7 +7,6 @@ from pydantic import BaseModel, validator
 class BaseTask(BaseModel):
     title: str
     description: Union[str, None] = None
-    owner_id: int
     status: str = "Pending"
     deleted: bool = False
     due_date: Optional[datetime] = None
@@ -20,7 +19,11 @@ class BaseTask(BaseModel):
         return status
 
 
-class TaskResponse(BaseTask):
+class PutTask(BaseTask):
+    owner_id: Union[int, None] = None
+
+
+class TaskResponse(PutTask):
     id: int
 
     class Config:

@@ -82,13 +82,9 @@ def create_user(user: BaseUser, db: Session = Depends(get_db)) -> UserResponse:
     response_model=TaskResponse,
     description="Allows user to create a new task",
 )
-def create_task(task: BaseTask, db: Session = Depends(get_db)) -> TaskResponse:
+def create_task(task: BaseTask, current_user: Annotated[User, Depends(get_current_user)], db: Session = Depends(get_db)) -> TaskResponse:
     # ensures that user exists before creating task
-    # don't let user create task for a different user
-    user = user_handler.get_user_by_id(db, task.owner_id)
-    if not user:
-        raise HTTPException(404, "User not found")
-    task = task_handler.create_task(db, task)
+    task = task_handler.create_task(db, task, current_user.id)
 
     return task
 
@@ -99,7 +95,7 @@ def create_task(task: BaseTask, db: Session = Depends(get_db)) -> TaskResponse:
     description="Allows user to get a list of all active tasks that belong to them",
 )
 def get_tasks_for_user(
-    current_user: Annotated[BaseUser, Depends(get_current_user)],
+    current_user: Annotated[User, Depends(get_current_user)],
     db: Session = Depends(get_db),
 ) -> TaskResponse:
     # makes use of current user so that nobody can acces any tasks that are not owned by them
@@ -113,7 +109,7 @@ def get_tasks_for_user(
     description="Allows user to delete a task that is owned by them",
 )
 def delete_task(
-    current_user: Annotated[BaseUser, Depends(get_current_user)],
+    current_user: Annotated[User, Depends(get_current_user)],
     task_id: int,
     db: Session = Depends(get_db),
 ) -> None:
@@ -132,9 +128,9 @@ def delete_task(
     description="Allows user to update a task that is owned by them",
 )
 def update_task(
-    current_user: Annotated[BaseUser, Depends(get_current_user)],
+    current_user: Annotated[User, Depends(get_current_user)],
     task_id: int,
-    updates: BaseTask,
+    updates: PutTask,
     db: Session = Depends(get_db),
 ) -> TaskResponse:
     task = task_handler.get_task_by_id(db, task_id, current_user)
@@ -150,7 +146,7 @@ def update_task(
     description="Allows user to undelete a task that is owned by them",
 )
 def restore_task(
-    current_user: Annotated[BaseUser, Depends(get_current_user)],
+    current_user: Annotated[User, Depends(get_current_user)],
     task_id: int,
     db: Session = Depends(get_db),
 ) -> TaskResponse:
