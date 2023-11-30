@@ -52,10 +52,18 @@ def get_db():
         db.close()
 
 
-async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]) -> BaseUser:
-    # would use a better way to do this in real life with oauth usernames and passwords, checking tokens actually matach.
-    db: Session = Depends(get_db)
-    user = user_handler.get_user_by_email(db, "test1@test.com")
+def fake_decode_token(token):
+    # change the details here if you wanted to use a different user
+    # comment/uncomment to try different ones
+    return User(
+        # id=1, username="test1", email="test1@test.com"
+        id=2, username="test2", email="test2@test.com"
+    )
+
+
+async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)])-> User:
+    # in a production system we would be using some sort of authentication middleware or username/password check
+    user = fake_decode_token(token)
     return user
 
 
