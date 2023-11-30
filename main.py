@@ -1,4 +1,4 @@
-from asyncio import exceptions
+import logging
 from typing import Annotated
 from fastapi import Depends, FastAPI, HTTPException
 from sqlalchemy.orm import Session
@@ -6,19 +6,34 @@ from sqlalchemy.orm import Session
 import handlers.users as user_handler
 import handlers.tasks as task_handler
 
-from database import SessionLocal, engine
-from models.history import History
-from models.task import Task
+from contextlib import asynccontextmanager
+from alembic.config import Config
+from alembic import command
+
+from database import SessionLocal
 from models.user import User
 
 from pydantic_schemas.schemas import *
 from fastapi.security import OAuth2PasswordBearer
 
-History.metadata.create_all(bind=engine)
-Task.metadata.create_all(bind=engine)
-User.metadata.create_all(bind=engine)
+log = logging.getLogger("uvicorn")
 
-app = FastAPI()
+
+def run_migrations():
+    alembic_cfg = Config("alembic.ini")
+    command.upgrade(alembic_cfg, "head")
+
+
+@asynccontextmanager
+async def lifespan(app_: FastAPI):
+    log.info("Starting up...")
+    log.info("Run alembic upgrade head...")
+    run_migrations()
+    yield
+    log.info("Shutting down...")
+
+
+app = FastAPI(lifespan=lifespan)
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
 
@@ -32,12 +47,12 @@ def get_db():
 
 
 # would use a better way to do this in real life with oauth usernames and passwords.
-def fake_decode_token(token) -> BaseUser:
-    return User(username=token + "fakedecoded", email="laura@test.com")
+def fake_decode_token(token, email) -> BaseUser:
+    return User(username=token + email, email=email)
 
 
 async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]) -> BaseUser:
-    user = fake_decode_token(token)
+    user = fake_decode_token(token, "test1@test.com")
     return user
 
 
