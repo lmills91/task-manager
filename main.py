@@ -28,7 +28,7 @@ def run_migrations():
 async def lifespan(app_: FastAPI):
     log.info("Starting up...")
     log.info("Run alembic upgrade head...")
-    run_migrations()
+    # run_migrations()
     yield
     log.info("Shutting down...")
 
@@ -56,17 +56,18 @@ async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]) -> Bas
     return user
 
 
-@app.post("/users", response_model=UserResponse)
+@app.post("/users", response_model=UserResponse, description="Allows user to create a new user")
 def create_user(user: BaseUser, db: Session = Depends(get_db)) -> UserResponse:
     db_user = user_handler.get_user_by_email(db, email=user.email)
     if db_user:
         raise HTTPException(status_code=400, detail="Email already registered")
-    return user.create_user(db=db, user=user)
+    return user_handler.create_user(db=db, user=user)
 
 
-@app.post("/tasks", response_model=TaskResponse)
-def create_task(task: TaskBase, db: Session = Depends(get_db)) -> TaskResponse:
+@app.post("/tasks", response_model=TaskResponse, description="Allows user to create a new task")
+def create_task(task: BaseTask, db: Session = Depends(get_db)) -> TaskResponse:
     # ensures that user exists before creating task
+    # don't let user create task for a different user
     user = user_handler.get_user_by_id(db, task.owner_id)
     if not user:
         raise HTTPException(404, "User not found")
@@ -75,7 +76,7 @@ def create_task(task: TaskBase, db: Session = Depends(get_db)) -> TaskResponse:
     return task
 
 
-@app.get("/tasks", response_model=List[TaskResponse])
+@app.get("/tasks", response_model=List[TaskResponse], description="Allows user to get a list of all active tasks that belong to them")
 def get_tasks_for_user(
     current_user: Annotated[BaseUser, Depends(get_current_user)],
     db: Session = Depends(get_db),
@@ -85,7 +86,7 @@ def get_tasks_for_user(
     return tasks
 
 
-@app.delete("/tasks/{task_id}")
+@app.delete("/tasks/{task_id}", description="Allows user to delete a task that is owned by them")
 def delete_task(
     current_user: Annotated[BaseUser, Depends(get_current_user)],
     task_id: int,
@@ -100,11 +101,11 @@ def delete_task(
     return
 
 
-@app.put("/tasks/{task_id}", response_model=TaskResponse)
+@app.put("/tasks/{task_id}", response_model=TaskResponse, description="Allows user to update a task that is owned by them")
 def update_task(
     current_user: Annotated[BaseUser, Depends(get_current_user)],
     task_id: int,
-    updates: TaskBase,
+    updates: BaseTask,
     db: Session = Depends(get_db),
 ) -> TaskResponse:
     task = task_handler.get_task_by_id(db, task_id, current_user)
@@ -114,13 +115,12 @@ def update_task(
     return task
 
 
-@app.patch("/tasks/restore/{task_id}", response_model=TaskResponse)
+@app.patch("/tasks/restore/{task_id}", response_model=TaskResponse, description="Allows user to undelete a task that is owned by them")
 def restore_task(
     current_user: Annotated[BaseUser, Depends(get_current_user)],
     task_id: int,
     db: Session = Depends(get_db),
 ) -> TaskResponse:
-    # allows user to undelete a task that is owned by them
     task = task_handler.get_task_by_id(db, task_id, current_user, True)
     if not task:
         raise HTTPException(404, "task not found for current user")

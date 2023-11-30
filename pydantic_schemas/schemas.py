@@ -4,7 +4,7 @@ from typing import Optional, Union, List
 from pydantic import BaseModel, validator
 
 
-class TaskBase(BaseModel):
+class BaseTask(BaseModel):
     title: str
     description: Union[str, None] = None
     owner_id: int
@@ -20,7 +20,7 @@ class TaskBase(BaseModel):
         return status
 
 
-class TaskResponse(TaskBase):
+class TaskResponse(BaseTask):
     id: int
 
     class Config:
@@ -34,7 +34,7 @@ class BaseUser(BaseModel):
 
 class UserResponse(BaseUser):
     id: int
-    Tasks: List[TaskBase] = []
+    Tasks: List[BaseTask] = []
 
     class Config:
         orm_mode = True

@@ -5,10 +5,10 @@ from models.history import History
 from pydantic_schemas.schemas import BaseUser
 import handlers.users as user_handler
 
-from pydantic_schemas.schemas import TaskBase, TaskResponse
+from pydantic_schemas.schemas import BaseTask, TaskResponse
 
 
-def create_task(db: Session, task: TaskBase) -> TaskResponse:
+def create_task(db: Session, task: BaseTask) -> TaskResponse:
     new_task = Task(
         title=task.title,
         description=task.description,
@@ -45,7 +45,7 @@ def restore_task(db: Session, task: TaskResponse) -> TaskResponse:
     return task
 
 
-def update_task(db: Session, task: TaskResponse, updates: TaskBase) -> TaskResponse:
+def update_task(db: Session, task: TaskResponse, updates: BaseTask) -> TaskResponse:
     # allow user to update any field except for deleted. Can be restored from another endpoint.
     task.title = updates.title if updates.title else task.title
     task.owner_id = updates.owner_id if updates.owner_id else task.owner_id
