@@ -57,11 +57,13 @@ def fake_decode_token(token):
     # comment/uncomment to try different ones
     return User(
         # id=1, username="test1", email="test1@test.com"
-        id=2, username="test2", email="test2@test.com"
+        id=2,
+        username="test2",
+        email="test2@test.com",
     )
 
 
-async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)])-> User:
+async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]) -> User:
     # in a production system we would be using some sort of authentication middleware or username/password check
     user = fake_decode_token(token)
     return user
