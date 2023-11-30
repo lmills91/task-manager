@@ -16,9 +16,6 @@ from models.user import User
 from pydantic_schemas.schemas import *
 from fastapi.security import OAuth2PasswordBearer
 
-# History.metadata.create_all(bind=engine)
-# Task.metadata.create_all(bind=engine)
-# User.metadata.create_all(bind=engine)
 log = logging.getLogger("uvicorn")
 
 def run_migrations():
