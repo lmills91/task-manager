@@ -26,7 +26,7 @@ def run_upgrade_migrations():
 
 def run_downgrade_migrations():
     alembic_cfg = Config("alembic.ini")
-    command.downgrade(alembic_cfg, "head")
+    command.downgrade(alembic_cfg, "base")
 
 
 @asynccontextmanager
