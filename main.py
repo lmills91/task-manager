@@ -18,6 +18,7 @@ from fastapi.security import OAuth2PasswordBearer
 
 log = logging.getLogger("uvicorn")
 
+
 def run_migrations():
     alembic_cfg = Config("alembic.ini")
     command.upgrade(alembic_cfg, "head")
