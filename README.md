@@ -18,9 +18,8 @@ run `curl -sSL https://install.python-poetry.org | python3 -` to install poetry
 
 run `poetry install`
 
-`alembic upgrade head` whenever a new column is added.
-
 To run server:
 `uvicorn main:app --reload`
+running this will automatically run alembic migrations to set up db with some test data.
 
 To check formatting run `black ./pathtofile`
