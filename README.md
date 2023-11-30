@@ -19,7 +19,10 @@ run `curl -sSL https://install.python-poetry.org | python3 -` to install poetry
 run `poetry install`
 
 To run server:
-`uvicorn main:app --reload`
+`alembic downgrade base` --- makes sure db starts clean 
+`uvicorn main:app --reload` --- runs application
 running this will automatically run alembic migrations to set up db with some test data.
 
 To check formatting run `black ./pathtofile`
+
+Have been using DB Browser for Sqlite as a db ui

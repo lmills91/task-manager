@@ -33,7 +33,7 @@ def delete_undelete_task(db: Session, task: TaskResponse, delete: bool = False):
     db.commit()
     db.refresh(task)
     db.refresh(new_history)
-    return
+    return task
 
 
 def update_task(db: Session, task: TaskResponse, updates: BaseTask) -> TaskResponse:

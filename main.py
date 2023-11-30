@@ -24,18 +24,12 @@ def run_upgrade_migrations():
     command.upgrade(alembic_cfg, "head")
 
 
-def run_downgrade_migrations():
-    alembic_cfg = Config("alembic.ini")
-    command.downgrade(alembic_cfg, "base")
-
-
 @asynccontextmanager
 async def lifespan(app_: FastAPI):
     log.info("Starting up...")
     log.info("Run alembic upgrade head...")
     run_upgrade_migrations()
     yield
-    run_downgrade_migrations()
     log.info("Shutting down...")
 
 
