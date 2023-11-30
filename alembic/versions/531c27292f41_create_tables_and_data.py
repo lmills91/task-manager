@@ -1,4 +1,4 @@
-"""create user table
+"""create tables and test data
 
 Revision ID: 531c27292f41
 Revises: 
