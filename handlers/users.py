@@ -10,7 +10,7 @@ def create_user(db: Session, user: BaseUser) -> User:
     db_user = get_user_by_email(db, email=user.email)
     if db_user:
         raise HTTPException(status_code=400, detail="Email already registered")
-    
+
     db_user = User(email=user.email, username=user.username)
     db.add(db_user)
     db.commit()
@@ -23,5 +23,5 @@ def get_user_by_id(db: Session, user_id: int):
 
 
 # used to validate a new user email is unique
-def get_user_by_email(db: Session, email: str)-> Union[User, None]:
+def get_user_by_email(db: Session, email: str) -> Union[User, None]:
     return db.query(User).filter(User.email == email).first()
