@@ -18,7 +18,7 @@ def create_user(db: Session, user: BaseUser) -> User:
     return db_user
 
 
-def owner_is_current_user(db: Session, owner_id: int, current_user: User)-> bool:
+def owner_is_current_user(db: Session, owner_id: int, current_user: User) -> bool:
     return owner_id == current_user.id
 
 

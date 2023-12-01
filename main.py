@@ -82,7 +82,11 @@ def create_user(user: BaseUser, db: Session = Depends(get_db)) -> UserResponse:
     response_model=TaskResponse,
     description="Allows user to create a new task",
 )
-def create_task(task: BaseTask, current_user: Annotated[User, Depends(get_current_user)], db: Session = Depends(get_db)) -> TaskResponse:
+def create_task(
+    task: BaseTask,
+    current_user: Annotated[User, Depends(get_current_user)],
+    db: Session = Depends(get_db),
+) -> TaskResponse:
     # ensures that user exists before creating task
     task = task_handler.create_task(db, task, current_user.id)
 
